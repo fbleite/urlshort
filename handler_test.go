@@ -39,3 +39,7 @@ func Test_parseJSON(t *testing.T) {
 	log.Println(parsedJson)
 
 }
+
+func Test_accessBoltDb(t *testing.T) {
+	accessBoltDb()
+}

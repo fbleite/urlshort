@@ -7,6 +7,7 @@ import (
 	"log"
 	"flag"
 	"io/ioutil"
+	"github.com/boltdb/bolt"
 )
 const DEFAULT_YAML = "./urls.yaml"
 const DEFAULT_JSON = "./urls.json"
@@ -37,7 +38,6 @@ func main() {
 		panic(err)
 	}
 
-
 	jsonBytes, err := ioutil.ReadFile(*jsonPath)
 	if err != nil {
 		panic(err)
@@ -47,8 +47,12 @@ func main() {
 		panic(err)
 	}
 
+	db, err := bolt.Open("./my.db", 0600, nil)
+
+	boltHandler := urlshort.BoltHandler(*db, jsonHandler)
+
 	fmt.Println("Starting the server on :8080")
-	err = http.ListenAndServe(":8080", jsonHandler)
+	err = http.ListenAndServe(":8080", boltHandler)
 	log.Fatal(err)
 }
 

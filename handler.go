@@ -5,6 +5,8 @@ import (
 	"log"
 	"gopkg.in/yaml.v2"
 	"encoding/json"
+	"github.com/boltdb/bolt"
+	"fmt"
 )
 
 // MapHandler will return an http.HandlerFunc (which also
@@ -100,3 +102,25 @@ func buildMapJson(parsedJson []pathUrlJson) map[string]string {
 	}
 	return pathUrlMap
 }
+
+func BoltHandler(db bolt.DB, fallback http.Handler) (http.HandlerFunc) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Request path", r.URL.Path)
+		var url string
+		db.View(func(tx *bolt.Tx) error {
+			b := tx.Bucket([]byte("path-url"))
+			url = string(b.Get([]byte(r.URL.Path)))
+			fmt.Printf("The answer is: %s\n", url)
+			return nil
+		})
+
+		if url != "" {
+			http.Redirect(w, r, url, 301)
+		} else {
+			fallback.ServeHTTP(w, r)
+		}
+		return
+	}
+
+}
+
