@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/gophercises/urlshort"
+	"gophercises/urlshort"
+	"log"
 )
 
 func main() {
@@ -14,6 +14,7 @@ func main() {
 	pathsToUrls := map[string]string{
 		"/urlshort-godoc": "https://godoc.org/github.com/gophercises/urlshort",
 		"/yaml-godoc":     "https://godoc.org/gopkg.in/yaml.v2",
+		"/fbleite": "http://www.feliperbleite.com",
 	}
 	mapHandler := urlshort.MapHandler(pathsToUrls, mux)
 
@@ -25,12 +26,14 @@ func main() {
 - path: /urlshort-final
   url: https://github.com/gophercises/urlshort/tree/solution
 `
+
 	yamlHandler, err := urlshort.YAMLHandler([]byte(yaml), mapHandler)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println("Starting the server on :8080")
-	http.ListenAndServe(":8080", yamlHandler)
+	err = http.ListenAndServe(":8080", yamlHandler)
+	log.Fatal(err)
 }
 
 func defaultMux() *http.ServeMux {
